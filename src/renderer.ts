@@ -251,7 +251,15 @@ export function getModuleDependencies (id: Identifier, rendererContext: Renderer
       filteredPreload[id] = dependencies.preload[id]
     }
   }
+  const filteredPrefetch: ModuleDependencies['prefetch'] = {}
+  for (const id in dependencies.prefetch) {
+    const dep = dependencies.prefetch[id]
+    if (rendererContext.shouldPrefetch(dep.path, dep.type)) {
+      filteredPrefetch[id] = dependencies.prefetch[id]
+    }
+  }
   dependencies.preload = filteredPreload
+  dependencies.prefetch = filteredPrefetch
 
   rendererContext._dependencies[id] = dependencies
   return dependencies
@@ -277,13 +285,13 @@ export function getAllDependencies (ids: Set<Identifier>, rendererContext: Rende
     Object.assign(allDeps.preload, deps.preload)
     Object.assign(allDeps.prefetch, deps.prefetch)
 
-    for (const dynamicDepId of rendererContext.clientManifest[id]?.dynamicImports || []) {
-      const dynamicDeps = getModuleDependencies(dynamicDepId, rendererContext)
-      Object.assign(allDeps.prefetch, dynamicDeps.scripts)
-      Object.assign(allDeps.prefetch, dynamicDeps.styles)
-      Object.assign(allDeps.prefetch, dynamicDeps.preload)
-      Object.assign(allDeps.prefetch, dynamicDeps.prefetch)
-    }
+    // for (const dynamicDepId of rendererContext.clientManifest[id]?.dynamicImports || []) {
+    //   const dynamicDeps = getModuleDependencies(dynamicDepId, rendererContext)
+    //   Object.assign(allDeps.prefetch, dynamicDeps.scripts)
+    //   Object.assign(allDeps.prefetch, dynamicDeps.styles)
+    //   Object.assign(allDeps.prefetch, dynamicDeps.preload)
+    //   Object.assign(allDeps.prefetch, dynamicDeps.prefetch)
+    // }
   }
 
   for (const id in allDeps.prefetch) {
